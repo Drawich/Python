@@ -1,11 +1,27 @@
-# from replit import clear
 from collections import Counter
 import random
+import sys
+import os
+
+
+# To clear screen
+def is_running_in_terminal():
+    """Check if the script is running in a terminal."""
+    return sys.stdin.isatty()
 
 
 def clear():
-    """Clears the terminal screen."""
-    print('\n'*20)
+    """Clears the screen if running in a terminal; otherwise, inserts default number of new lines."""
+    windows_clear_command = 'cls'
+    unix_clear_command = 'clear'
+
+    if is_running_in_terminal():
+        if os.name == 'nt':  # For Windows
+            _ = os.system(windows_clear_command)
+        else:  # For Unix/Linux/Mac
+            _ = os.system(unix_clear_command)
+    else:
+        print('\n' * 50)
 
 
 # Validating user input
@@ -217,7 +233,7 @@ def play_questions_and_doors(math_questions, answer_question_count, zombie_door_
         for question in math_questions:
             clear()
             print(f"Du har svarat korrekt på: {correct_count} utav {len(math_questions)} frågor.")
-            print(Counter(map(tuple, math_questions))) #tests for duplicates to verify logic
+            # print(Counter(map(tuple, math_questions))) #tests for duplicates to verify logic
 
             # Ask the user to solve the math question one at the time
             user_answer = input_valid_int(f"Vad blir {question[0]} {question[1]} {question[2]}?\n",
@@ -240,7 +256,7 @@ def play_questions_and_doors(math_questions, answer_question_count, zombie_door_
 
 def zombie_quiz(zombie_door_list, zombie_doors_left):
     """Check if the chosen door contains zombies"""
-    print(zombie_door_list)  # For testing purposes
+    # print(zombie_door_list)  # For testing purposes
     print(f"Du har {zombie_doors_left} dörrar kvar att öppna.")
     door_number = input_valid_int(
         f"Välj en dörr mellan 1 och {zombie_doors_left}\n",
