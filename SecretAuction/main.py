@@ -71,7 +71,7 @@ def prepare_and_validate_auction_list(items):
     if items == 'test':
         return 'test'
     elif ',' in items:
-        items_list = [item.strip().lower() for part in items.split(',') for item in part.split()]
+        items_list = [item.strip().lower() for item in items.split(',')]
         return items_list
     elif items.strip() != "" and items.isalnum() and any(char.isalpha() for char in items):
         items_list = [items.strip().lower()]
@@ -107,9 +107,9 @@ def get_bid():
     return (float(done_bid))
 
 
-def get_more_bidders():
-    """Asks if there are more bidders."""
-    return validate_input('Are there any other bidders? (yes/no)',
+def get_yes_no(question):
+    """Asks user the question in the parameter and expects yes or no response."""
+    return validate_input(question,
                           is_valid_yes_no,
                           'Invalid input. Please enter "yes" or "no".').lower()
 
@@ -160,21 +160,34 @@ def linebreak_at_char(text, break_at_character, characters_per_line):
 
 
 def align_text(text, align, width):
+    # Calculates offset alignment
+    column_width = (width - 10) // 2
+    offset_before_first_column = width // 5
+    offset_between_columns = width // 3 - column_width
+
     if align == 'center':
         centered_text = linebreak_at_char(text, ' ', width)
         return centered_text.center(width)
     elif align == 'list_left_aligned':
-        max_offset = width//4
         whole_list = []
-        for item in text:
-            parts = item.split(maxsplit=1)
-            if len(parts) >= 2:
-                first_word, remainder = parts
-            else:
-                first_word, remainder = parts[0], ''
+        whole_list.append(f'{" " * offset_before_first_column}Items for auction:\n')
 
-            offset = max_offset - len(first_word)
-            aligned_line = f'{' ' * (width//6 + (width//8))} {first_word.ljust(len(first_word) + offset)} {remainder}'
+        # Handles and converts possible string into list
+        if isinstance(text, str):
+            new_text = []
+            new_text.append(text)
+            text = new_text
+
+        # Handles single and multiple items in list
+        for item in range(0, len(text), 2):
+            item1 = text[item].strip().capitalize() if item < len(text) else ''
+            item2 = text[item + 1].strip().capitalize() if item + 1 < len(text) else ''
+
+            if item2:
+                aligned_line = f'{" " * offset_before_first_column} {item1.ljust(column_width + offset_between_columns)} {item2}'
+            else:
+                aligned_line = f'{" " * offset_before_first_column} {item1}'
+
             whole_list.append(aligned_line)
 
         return '\n'.join(whole_list)
@@ -183,9 +196,8 @@ def align_text(text, align, width):
 # Introduction
 def intro(objects_for_auction, full_width):
     """Introduction to the auction"""
-    print(art.logo)
-    print(align_text(art.intro.format(num_items=len(objects_for_auction)), 'center', full_width))
-    print()
+    print(info.logo)
+    print(align_text(info.intro.format(num_items=len(objects_for_auction)), 'center', full_width))
     item_text = align_text(objects_for_auction, 'list_left_aligned', full_width)
     print(f'\n {item_text} \n')
     print('Press enter to get started!\n'.center(full_width))
@@ -196,13 +208,14 @@ def auction_item_intro(item, number, number_of_items, width):
     """Informs user of what item they are bidding on"""
     intro_text = f"For item number {number} out of {number_of_items} items, we are conducting an auction for a/an {item}. " \
                  "If you would like to place a bid on this item, please fill out the questions below: \n"
-    print(art.logo)
+    print(info.logo)
     print(align_text(intro_text, 'center', width))
 
 
 # Outro
 def print_winners(sold_items, width):
     """Gives a list of all the winners of today, only displays sold items"""
+    clear()
     print(align_text('Congratulations to all our winners!\n','center', width))
     for key, list_of_value in sold_items.items():
         for value in list_of_value:
@@ -226,7 +239,7 @@ def auction_item(item, number_of_items, number, width):
             bid = get_bid()
             formatted_bid = float("{:.2f}".format(bid))
             bidders[name] = formatted_bid
-            more_bidders = get_more_bidders()
+            more_bidders = get_yes_no('Are there any other bidders? (yes/no)')
         if more_bidders.lower() in ['no', 'n']:
             break
         clear()
@@ -252,9 +265,20 @@ def auction_program(width):
     print("We're about to start the auction. Let's set up all the items you're selling today!")
     items_input = get_auction_list()  # sets up the list of item being sold
     if items_input.lower().strip() == 'test':  # Uses a pre-made list for 7 items
-        objects_for_auction = list(art.objects_for_auction)
+        objects_for_auction = list(info.objects_for_auction)
+    elif len(items_input) >= 2:
+        if ',' in items_input:
+            objects_for_auction = [item.strip().capitalize() for item in items_input.split(',')]
+        else:
+            one_item = get_yes_no('Are you only selling one item today?')
+            if one_item:
+                objects_for_auction = [item.strip().capitalize() for item in items_input.split(',')]
+            else:
+                items_input = get_auction_list()
+                objects_for_auction = items_input.split(',')
     else:
-        objects_for_auction = items_input.split(',').strip().lower()
+        objects_for_auction = items_input.split(',')
+
     clear()  # will remove the previous text prior to the start of the auction
 
     iteration = 1
@@ -281,7 +305,3 @@ if __name__ == "__main__":
         if play_again.lower() in ['no', 'n']:
             break
         clear()
-
-#TODO 1 list when presenting all items in intro does not allow 2 items on the first row
-#TODO 2 list when presenting all items in intro contain whitespace prior to first item
-#TODO 3 list item at end contains additional whitespaces prior to items
