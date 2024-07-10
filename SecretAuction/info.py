@@ -25,7 +25,7 @@ objects_for_auction = [
     "antique chair",
     "vintage watch",
     "rare coin collection",
-    "signed sports memorabilia",
+    "signed baseball",
     "diamond necklace",
     "classic car",
 ]
