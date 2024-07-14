@@ -1,8 +1,8 @@
 import game_data
 
 
-def make_coffee(drink_name, order_ingredients):
-    """Deduct the required ingredients from the resources."""
+def make_coffee(order_ingredients):
+    """ Deduct the required ingredients from the resources."""
     if is_resource_sufficient(order_ingredients):
         for item in order_ingredients:
             game_data.resources[item] -= order_ingredients[item]
@@ -12,7 +12,7 @@ def make_coffee(drink_name, order_ingredients):
 
 
 def is_resource_sufficient(order_ingredients):
-    """Returns True when order can be made, False if ingredients are insufficient."""
+    """ Returns True when order can be made, False if ingredients are insufficient."""
     for item in order_ingredients:
         if item not in game_data.resources:
             print(f"Sorry, {item} is not available.")
