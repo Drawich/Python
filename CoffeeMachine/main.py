@@ -24,7 +24,7 @@ while True:
             payment_accepted, profit = process_payment.is_transaction_successful(payment, drink["cost"], profit)
             game_data.profit = profit
             if payment_accepted:
-                process_coffee.make_coffee(order, drink["ingredients"])
+                process_coffee.make_coffee(drink["ingredients"])
                 print(f'Enjoy your {order}!')
     input('Press enter to continue..')
     format_data.clear()
